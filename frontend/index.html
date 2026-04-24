@@ -19,12 +19,18 @@
   <header>
     <div class="header-inner">
       <a href="#" class="logo" aria-label="Snippet Saver Home">
-        <div class="logo-icon">✦</div>
-        <span class="logo-text">Snippet<span>Saver</span></span>
+        <span class="logo-text">SnippetSaver</span>
       </a>
-      <div class="header-stats">
-        <span class="stat-badge" id="totalBadge"><strong id="totalCount">0</strong> snippets</span>
-        <span class="stat-badge" id="favBadge"><strong id="favCount">0</strong> ★ favorites</span>
+      <div class="header-actions">
+        <a href="https://github.com/KaranJangid8656/snippet-ctrlC-ctrlV" target="_blank" class="github-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+            </path>
+          </svg>
+          GitHub Repo
+        </a>
       </div>
     </div>
   </header>
@@ -32,8 +38,8 @@
   <!-- ─── Main Layout ─── -->
   <main class="main-container" role="main">
 
-    <!-- ─── Sidebar: Form ─── -->
-    <aside class="sidebar">
+    <!-- ─── Left Sidebar: Form ─── -->
+    <aside class="left-sidebar">
       <div class="panel">
         <p class="panel-title">✦ New Snippet</p>
         <form id="snippetForm" novalidate>
@@ -53,7 +59,6 @@
             <input type="text" id="tagsInput" placeholder="e.g. javascript, utility, hook" autocomplete="off" />
           </div>
           <button type="submit" id="submitBtn" class="btn btn-primary">
-            <span id="submitIcon">＋</span>
             <span id="submitText">Save Snippet</span>
           </button>
         </form>
@@ -64,7 +69,7 @@
         <p class="panel-title">💡 Tips</p>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
           <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--accent)">★</span> Star snippets to mark favorites
+            <span style="color:var(--text-primary)">★</span> Star snippets to mark favorites
           </li>
           <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
             <span style="color:var(--success)">⧉</span> Click copy to grab content instantly
@@ -120,6 +125,21 @@
       </div>
 
     </section>
+
+    <!-- ─── Right Sidebar: Stats ─── -->
+    <aside class="right-sidebar">
+      <div class="panel stats-panel">
+        <div class="stat-group" id="totalBadge">
+          <span class="stat-label">Total Snippets:</span>
+          <strong class="stat-value" id="totalCount">0</strong>
+        </div>
+        <div class="stat-group" id="favBadge">
+          <span class="stat-label">Favorites:</span>
+          <strong class="stat-value" id="favCount">0</strong>
+        </div>
+      </div>
+    </aside>
+
   </main>
 
   <!-- ─── Toast ─── -->
