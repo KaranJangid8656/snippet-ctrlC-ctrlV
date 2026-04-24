@@ -4,9 +4,10 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Latest-47a248?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-**Snippet Saver** is a premium, minimal, and lightning-fast full-stack application designed to help developers organize their digital life. Whether it's code snippets, frequently used links, or quick documentation notes, Snippet Saver provides a beautiful interface to save, search, and manage them with ease.
 
 ![Snippet Saver Preview](./frontend/preview.png)
+
+**Snippet Saver** is a premium, minimal, and lightning-fast full-stack application designed to help developers organize their digital life. Whether it's code snippets, frequently used links, or quick documentation notes, Snippet Saver provides a beautiful interface to save, search, and manage them with ease.
 
 ---
 
