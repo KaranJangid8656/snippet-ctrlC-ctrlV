@@ -1,123 +1,112 @@
-# ✦ Snippet Saver
+# ✦ Snippet Saver (SnippetCV)
 
-> A minimal, fast, and beautiful full-stack app to save, search, and manage reusable code snippets, links, and notes.
+[![Node.js](https://img.shields.io/badge/Node.js-18+-6fb344?style=flat-square&logo=node.js)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-47a248?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-![Dark Mode UI](./frontend/preview.png)
+**Snippet Saver** is a premium, minimal, and lightning-fast full-stack application designed to help developers organize their digital life. Whether it's code snippets, frequently used links, or quick documentation notes, Snippet Saver provides a beautiful interface to save, search, and manage them with ease.
+
+![Snippet Saver Preview](./frontend/preview.png)
 
 ---
 
-## 🗂 Folder Structure
+## ✨ Key Features
 
-```
+- **💾 Instant Saving** — Quickly save code snippets with titles and categorized tags.
+- **🔍 Real-time Search** — Deep-search through your collection by title or tag with zero lag.
+- **🏷 Smart Tagging** — Clickable, color-coded tags for effortless organization and filtering.
+- **★ Favorites System** — Star your most important snippets for quick access in the favorites view.
+- **⧉ One-Click Copy** — Integrated clipboard support with visual toast notifications.
+- **🎨 Syntax Highlighting** — Beautiful code rendering powered by `highlight.js`.
+- **📱 Fully Responsive** — Seamless experience across mobile, tablet, and desktop devices.
+- **🌙 Premium UI** — A modern, light-themed interface with subtle glassmorphism and smooth animations.
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | Vanilla JS (ES6+), HTML5, CSS3 (Modern Variables & Flex/Grid) |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB, Mongoose (ODM) |
+| **Utilities** | highlight.js (Syntax), Lucide-like icons, Google Fonts (Inter & JetBrains Mono) |
+
+---
+
+## 📂 Project Structure
+
+```text
 SnippetCV/
 ├── backend/
-│   ├── models/
-│   │   └── Snippet.js       ← Mongoose schema
-│   ├── routes/
-│   │   └── snippets.js      ← REST API routes
-│   ├── server.js            ← Express entry point
-│   ├── .env                 ← Environment config
-│   └── package.json
+│   ├── models/Snippet.js       # Mongoose Schema & Validation
+│   ├── routes/snippets.js      # RESTful API Endpoints
+│   ├── server.js               # Express Server Initialization
+│   ├── .env                    # Environment Configuration
+│   └── package.json            # Backend Dependencies
 └── frontend/
-    ├── index.html
-    ├── style.css
-    └── script.js
+    ├── index.html              # Main UI Structure
+    ├── style.css               # Modern Design System & Layout
+    ├── script.js               # Frontend Logic & API Integration
+    └── preview.png             # UI Screenshot
 ```
 
 ---
 
-## 🏗 Tech Stack
+## 🚀 Getting Started
 
-| Layer      | Tech                          |
-|------------|-------------------------------|
-| Frontend   | HTML · CSS · Vanilla JS       |
-| Backend    | Node.js · Express             |
-| Database   | MongoDB · Mongoose            |
-| Extras     | highlight.js (syntax colors)  |
+### 1. Prerequisites
+- **Node.js** (v18 or higher)
+- **MongoDB** (Local instance or Atlas URI)
 
----
-
-## ⚡ Running the Project Locally
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) v18+
-- [MongoDB](https://www.mongodb.com/try/download/community) running locally on port `27017`
-
----
-
-### Step 1 — Start MongoDB
-
-Make sure MongoDB is running. On Windows you can start it via:
-
-```powershell
-# If installed as a service, it may already be running.
-# Or start manually:
-mongod --dbpath "C:\data\db"
+### 2. Environment Setup
+Navigate to the `backend` folder and create a `.env` file:
+```bash
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/snippetsaver
 ```
 
----
+### 3. Installation & Run
+Start both the backend and the frontend:
 
-### Step 2 — Install & Start Backend
-
-```powershell
+**Backend:**
+```bash
 cd backend
 npm install
-npm run dev        # uses nodemon for auto-reload
-# OR: npm start   # production start
+npm run dev
 ```
 
-Server will be live at: **http://localhost:5000**
-
----
-
-### Step 3 — Open Frontend
-
-Simply open `frontend/index.html` in your browser:
-
-```powershell
-# From project root:
-start frontend\index.html
-```
-
-Or serve it with any static server:
-
-```powershell
+**Frontend:**
+Simply open `frontend/index.html` in your browser or use a live server:
+```bash
 npx serve frontend
 ```
 
 ---
 
-## 🚀 API Endpoints
+## 📡 API Reference
 
-| Method | Endpoint                    | Description                          |
-|--------|-----------------------------|--------------------------------------|
-| GET    | `/snippets`                 | Get all snippets (newest first)      |
-| POST   | `/snippets`                 | Create a new snippet                 |
-| GET    | `/snippets/search?q=query`  | Search by title or tags              |
-| PATCH  | `/snippets/:id/favorite`    | Toggle favorite                      |
-| DELETE | `/snippets/:id`             | Delete a snippet                     |
-
-### POST `/snippets` — Request Body
-
-```json
-{
-  "title": "Debounce Utility",
-  "content": "function debounce(fn, delay) { ... }",
-  "tags": ["javascript", "utility"]
-}
-```
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/snippets` | Retrieve all snippets (sorted by newest) |
+| `POST` | `/snippets` | Create a new snippet card |
+| `GET` | `/snippets/search?q=...` | Search snippets by title or tags |
+| `PATCH` | `/snippets/:id/favorite` | Toggle the "favorite" star status |
+| `DELETE` | `/snippets/:id` | Permanently delete a snippet |
 
 ---
 
-## ✨ Features
+## 📝 Future Enhancements
+- [ ] Dark Mode toggle support
+- [ ] User authentication and cloud sync
+- [ ] Multi-language syntax selection
+- [ ] Folders/Collections for deeper organization
 
-- 💾 **Save snippets** — title, content, tags
-- 🔍 **Real-time search** — filter by title or tag
-- 🏷 **Tag filtering** — click any tag to filter cards
-- ★  **Favorites** — star your most-used snippets
-- ⧉  **Copy to clipboard** — one-click copy with toast
-- 🗑  **Delete** — smooth animated removal
-- 🌙  **Dark mode** — premium dark UI with glassmorphism cards
-- 📱  **Responsive** — works on mobile & desktop
-- 🎨  **Syntax highlighting** — via highlight.js (atom-one-dark)
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+<p align="center">Made with ❤️ for developers who love clean code.</p>
