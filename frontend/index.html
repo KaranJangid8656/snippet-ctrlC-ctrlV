@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Snippet Saver — Save, search, and manage reusable code snippets, links, and notes in one place." />
+  <title>Snippet Saver — Your Personal Code Vault</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Highlight.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ─── Header ─── -->
+  <header>
+    <div class="header-inner">
+      <a href="#" class="logo" aria-label="Snippet Saver Home">
+        <div class="logo-icon">✦</div>
+        <span class="logo-text">Snippet<span>Saver</span></span>
+      </a>
+      <div class="header-stats">
+        <span class="stat-badge" id="totalBadge"><strong id="totalCount">0</strong> snippets</span>
+        <span class="stat-badge" id="favBadge"><strong id="favCount">0</strong> ★ favorites</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Main Layout ─── -->
+  <main class="main-container" role="main">
+
+    <!-- ─── Sidebar: Form ─── -->
+    <aside class="sidebar">
+      <div class="panel">
+        <p class="panel-title">✦ New Snippet</p>
+        <form id="snippetForm" novalidate>
+          <div class="form-group">
+            <label for="titleInput">Title *</label>
+            <input type="text" id="titleInput" placeholder="e.g. Debounce function" maxlength="100" autocomplete="off"
+              required />
+          </div>
+          <div class="form-group">
+            <label for="contentInput">Content *</label>
+            <textarea id="contentInput" placeholder="Paste your code, link, or note here..." maxlength="5000"
+              required></textarea>
+            <span class="char-count"><span id="charCount">0</span> / 5000</span>
+          </div>
+          <div class="form-group">
+            <label for="tagsInput">Tags <span style="color:var(--text-muted)">(comma-separated)</span></label>
+            <input type="text" id="tagsInput" placeholder="e.g. javascript, utility, hook" autocomplete="off" />
+          </div>
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span id="submitIcon">＋</span>
+            <span id="submitText">Save Snippet</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Quick Tips Panel -->
+      <div class="panel">
+        <p class="panel-title">💡 Tips</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
+            <span style="color:var(--accent)">★</span> Star snippets to mark favorites
+          </li>
+          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
+            <span style="color:var(--success)">⧉</span> Click copy to grab content instantly
+          </li>
+          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
+            <span style="color:var(--warning)">⬡</span> Click a tag to filter snippets
+          </li>
+          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
+            <span style="color:var(--danger)">🔍</span> Search by title or tag in real-time
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ─── Content Area ─── -->
+    <section class="content-area">
+
+      <!-- Search -->
+      <div class="search-wrapper" role="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search snippets by title or tag..."
+          aria-label="Search snippets" autocomplete="off" />
+        <button class="clear-search" id="clearSearch" aria-label="Clear search" title="Clear">✕</button>
+      </div>
+
+      <!-- Active Tag Filter Banner -->
+      <div class="active-filter-banner" id="filterBanner">
+        <span>🏷 Filtering by tag: <strong id="activeTagLabel"></strong></span>
+        <button class="clear-filter-btn" id="clearTagFilter">Clear filter</button>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" id="filterBar" role="group" aria-label="Filter snippets">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="favorites">★ Favorites</button>
+      </div>
+
+      <!-- Snippets Header -->
+      <div class="snippets-header">
+        <span class="snippets-count" id="snippetsCountLabel">Showing <strong>0</strong> snippets</span>
+        <select class="sort-select" id="sortSelect" aria-label="Sort snippets">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="title">A → Z</option>
+        </select>
+      </div>
+
+      <!-- Snippets Grid -->
+      <div id="snippetsGrid" role="list" aria-label="Saved snippets">
+        <div class="loader">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ─── Toast ─── -->
+  <div id="toast" role="alert" aria-live="polite">
+    <span class="toast-icon" id="toastIcon"></span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
