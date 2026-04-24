@@ -35,6 +35,56 @@ const toast = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
 const toastIcon = document.getElementById('toastIcon');
 
+// ─── Modal refs ──────────────────────────────────────
+let currentModalSnippetId = null;
+const previewModal = document.getElementById('previewModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalContent = document.getElementById('modalContent');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const modalCopyBtn = document.getElementById('modalCopyBtn');
+const modalFavBtn = document.getElementById('modalFavBtn');
+
+if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+        previewModal.classList.remove('active');
+        currentModalSnippetId = null;
+    });
+    previewModal.addEventListener('click', (e) => {
+        if (e.target === previewModal) {
+            previewModal.classList.remove('active');
+            currentModalSnippetId = null;
+        }
+    });
+}
+
+if (modalCopyBtn) {
+    modalCopyBtn.addEventListener('click', async () => {
+        if (!currentModalSnippetId) return;
+        const snippet = allSnippets.find(s => s._id === currentModalSnippetId);
+        if (snippet) {
+            try {
+                await navigator.clipboard.writeText(snippet.content);
+                showToast('Copied from preview!', 'copy');
+                modalCopyBtn.textContent = '✔';
+                setTimeout(() => { modalCopyBtn.textContent = '⧉'; }, 1500);
+            } catch {
+                showToast('Copy failed. Try manually.', 'error');
+            }
+        }
+    });
+
+    modalFavBtn.addEventListener('click', async () => {
+        if (!currentModalSnippetId) return;
+        await toggleFavorite(currentModalSnippetId);
+        const snippet = allSnippets.find(s => s._id === currentModalSnippetId);
+        if (snippet) {
+            modalFavBtn.textContent = snippet.favorite ? '★' : '☆';
+            modalFavBtn.classList.toggle('active', snippet.favorite);
+            modalFavBtn.title = snippet.favorite ? 'Unstar' : 'Star';
+        }
+    });
+}
+
 // ─── Toast ───────────────────────────────────────────
 let toastTimer;
 function showToast(msg, type = 'info') {
@@ -234,6 +284,27 @@ snippetsGrid.addEventListener('click', async (e) => {
         setTagFilter(tag.dataset.tag);
         return;
     }
+
+    // Modal Preview
+    const card = e.target.closest('.snippet-card');
+    if (card && previewModal) {
+        const id = card.dataset.id;
+        const snippet = allSnippets.find(s => s._id === id);
+        if (snippet) {
+            currentModalSnippetId = snippet._id;
+            modalTitle.textContent = snippet.title;
+            modalContent.textContent = snippet.content;
+
+            if (modalFavBtn) {
+                modalFavBtn.textContent = snippet.favorite ? '★' : '☆';
+                modalFavBtn.classList.toggle('active', snippet.favorite);
+                modalFavBtn.title = snippet.favorite ? 'Unstar' : 'Star';
+            }
+
+            previewModal.classList.add('active');
+            if (window.hljs) hljs.highlightElement(modalContent);
+        }
+    }
 });
 
 // ─── Tag filter ──────────────────────────────────────
@@ -307,8 +378,8 @@ form.addEventListener('submit', async (e) => {
 
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
-    submitText.textContent = 'Saving…';
-    submitIcon.textContent = '⏳';
+    if (submitText) submitText.textContent = 'Saving…';
+    if (submitIcon) submitIcon.textContent = '⏳';
 
     try {
         const res = await fetch(`${API_BASE}/snippets`, {
@@ -333,8 +404,8 @@ form.addEventListener('submit', async (e) => {
     } finally {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
-        submitText.textContent = 'Save Snippet';
-        submitIcon.textContent = '＋';
+        if (submitText) submitText.textContent = 'Save Snippet';
+        if (submitIcon) submitIcon.textContent = '＋';
     }
 });
 
