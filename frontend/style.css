@@ -78,7 +78,7 @@ header {
   z-index: 100;
   backdrop-filter: blur(12px);
 }
-
+/* header */
 .header-inner {
   max-width: 1400px;
   margin: 0 auto;
