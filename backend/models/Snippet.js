@@ -18,10 +18,20 @@ const snippetSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  language: {
+    type: String,
+    default: 'javascript',
+    trim: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
+
+snippetSchema.index({ title: 1 });
+snippetSchema.index({ tags: 1 });
+snippetSchema.index({ language: 1 });
+snippetSchema.index({ title: 'text', content: 'text', tags: 'text' });
 
 module.exports = mongoose.model('Snippet', snippetSchema);

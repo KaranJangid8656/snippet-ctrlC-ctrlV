@@ -31,6 +31,9 @@ const sortSelect = document.getElementById('sortSelect');
 const filterBanner = document.getElementById('filterBanner');
 const activeTagLabel = document.getElementById('activeTagLabel');
 const clearTagFilter = document.getElementById('clearTagFilter');
+const languageInput = document.getElementById('languageInput');
+const topTagsList = document.getElementById('topTagsList');
+const languageList = document.getElementById('languageList');
 const toast = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
 const toastIcon = document.getElementById('toastIcon');
@@ -102,9 +105,9 @@ contentInput.addEventListener('input', () => {
 });
 
 // ─── Fetch all snippets ──────────────────────────────
-async function fetchSnippets() {
+async function fetchSnippets(sortBy = 'createdAt', order = 'desc') {
     try {
-        const res = await fetch(`${API_BASE}/snippets`);
+        const res = await fetch(`${API_BASE}/snippets?sortBy=${sortBy}&order=${order}`);
         if (!res.ok) throw new Error('Failed to load snippets');
         allSnippets = await res.json();
         renderSnippets();
@@ -121,9 +124,57 @@ async function fetchSnippets() {
 }
 
 // ─── Update header stats ─────────────────────────────
-function updateStats() {
-    totalCount.textContent = allSnippets.length;
-    favCount.textContent = allSnippets.filter(s => s.favorite).length;
+async function updateStats() {
+    try {
+        const res = await fetch(`${API_BASE}/snippets/stats`);
+        if (!res.ok) throw new Error();
+        const stats = await res.json();
+
+        totalCount.textContent = stats.totalCount[0]?.count || 0;
+        favCount.textContent = stats.favoriteStats.find(s => s._id === true)?.count || 0;
+
+        renderStatsLists(stats.tagClouds, stats.languageStats);
+    } catch (err) {
+        console.error('Failed to fetch stats:', err);
+        totalCount.textContent = allSnippets.length;
+        favCount.textContent = allSnippets.filter(s => s.favorite).length;
+    }
+}
+
+function renderStatsLists(tags, languages) {
+    if (topTagsList) {
+        topTagsList.innerHTML = (tags || []).map(tag => `
+            <div class="stats-item" onclick="setTagFilter('${tag._id}')" style="cursor:pointer">
+                <span class="stats-item-label"># ${tag._id}</span>
+                <span class="stats-item-count">${tag.count}</span>
+            </div>
+        `).join('');
+    }
+
+    if (languageList) {
+        languageList.innerHTML = (languages || []).map(lang => `
+            <div class="stats-item">
+                <span class="stats-item-label">
+                    <span class="language-dot" style="background:${getLangColor(lang._id)}"></span>
+                    ${lang._id}
+                </span>
+                <span class="stats-item-count">${lang.count}</span>
+            </div>
+        `).join('');
+    }
+}
+
+function getLangColor(lang) {
+    const colors = {
+        javascript: '#f7df1e',
+        python: '#3776ab',
+        html: '#e34f26',
+        css: '#1572b6',
+        sql: '#336791',
+        markdown: '#083fa1',
+        other: '#9ca3c0'
+    };
+    return colors[lang.toLowerCase()] || '#9ca3c0';
 }
 
 // ─── Filter + sort pipeline ──────────────────────────
@@ -149,15 +200,6 @@ function getFilteredSnippets() {
             s.title.toLowerCase().includes(q) ||
             s.tags.some(t => t.toLowerCase().includes(q))
         );
-    }
-
-    // Sort
-    if (sortMode === 'oldest') {
-        list.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    } else if (sortMode === 'title') {
-        list.sort((a, b) => a.title.localeCompare(b.title));
-    } else {
-        list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     return list;
@@ -230,6 +272,10 @@ function buildCard(s) {
       ${tagsHTML ? `<div class="card-tags">${tagsHTML}</div>` : ''}
       <div class="card-footer">
         <span class="card-date">📅 ${date}</span>
+        <span class="card-language" style="font-size:0.72rem; color:var(--text-secondary); display:flex; align-items:center; gap:4px">
+           <span class="language-dot" style="background:${getLangColor(s.language || 'javascript')}"></span>
+           ${escapeHtml(s.language || 'javascript')}
+        </span>
         <span class="fav-indicator ${s.favorite ? 'shown' : ''}">★ Favorite</span>
       </div>
     </article>`;
@@ -385,7 +431,7 @@ form.addEventListener('submit', async (e) => {
         const res = await fetch(`${API_BASE}/snippets`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, content, tags }),
+            body: JSON.stringify({ title, content, tags, language: languageInput.value }),
         });
         if (!res.ok) throw new Error();
         const newSnippet = await res.json();
@@ -415,7 +461,20 @@ searchInput.addEventListener('input', () => {
     searchQuery = searchInput.value;
     clearSearch.style.display = searchQuery ? 'block' : 'none';
     clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(renderSnippets, 200);
+    searchDebounce = setTimeout(async () => {
+        if (searchQuery.trim()) {
+            try {
+                const res = await fetch(`${API_BASE}/snippets/search?q=${encodeURIComponent(searchQuery)}`);
+                if (!res.ok) throw new Error();
+                allSnippets = await res.json();
+                renderSnippets();
+            } catch (err) {
+                console.error('Search failed:', err);
+            }
+        } else {
+            fetchSnippets();
+        }
+    }, 300);
 });
 clearSearch.addEventListener('click', () => {
     searchInput.value = '';
@@ -437,7 +496,17 @@ filterBtns.forEach(btn => {
 // ─── Sort ────────────────────────────────────────────
 sortSelect.addEventListener('change', () => {
     sortMode = sortSelect.value;
-    renderSnippets();
+    let sortBy = 'createdAt';
+    let order = 'desc';
+
+    if (sortMode === 'oldest') {
+        order = 'asc';
+    } else if (sortMode === 'title') {
+        sortBy = 'title';
+        order = 'asc';
+    }
+
+    fetchSnippets(sortBy, order);
 });
 
 // ─── Init ────────────────────────────────────────────
