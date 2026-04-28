@@ -32,6 +32,9 @@ const snippetSchema = new mongoose.Schema({
 snippetSchema.index({ title: 1 });
 snippetSchema.index({ tags: 1 });
 snippetSchema.index({ language: 1 });
-snippetSchema.index({ title: 'text', content: 'text', tags: 'text' });
+snippetSchema.index(
+  { title: 'text', content: 'text', tags: 'text' },
+  { language_override: 'dummy_text_language' } // Prevent conflict with our programming language field
+);
 
 module.exports = mongoose.model('Snippet', snippetSchema);

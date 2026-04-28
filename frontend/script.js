@@ -33,7 +33,7 @@ const activeTagLabel = document.getElementById('activeTagLabel');
 const clearTagFilter = document.getElementById('clearTagFilter');
 const languageInput = document.getElementById('languageInput');
 const topTagsList = document.getElementById('topTagsList');
-const languageList = document.getElementById('languageList');
+const languageChartEl = document.getElementById('languageChart');
 const toast = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
 const toastIcon = document.getElementById('toastIcon');
@@ -91,10 +91,16 @@ if (modalCopyBtn) {
 // ─── Toast ───────────────────────────────────────────
 let toastTimer;
 function showToast(msg, type = 'info') {
-    const icons = { success: '✅', error: '❌', info: 'ℹ️', copy: '📋' };
+    const icons = {
+        success: '<i data-lucide="check-circle" style="width:16px;height:16px;color:var(--success)"></i>',
+        error: '<i data-lucide="x-circle" style="width:16px;height:16px;color:var(--danger)"></i>',
+        info: '<i data-lucide="info" style="width:16px;height:16px;color:var(--accent)"></i>',
+        copy: '<i data-lucide="clipboard-check" style="width:16px;height:16px;color:var(--accent)"></i>'
+    };
     toastMsg.textContent = msg;
-    toastIcon.textContent = icons[type] || icons.info;
+    toastIcon.innerHTML = icons[type] || icons.info;
     toast.className = `show ${type}`;
+    if (window.lucide) window.lucide.createIcons();
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toast.className = ''; }, 2800);
 }
@@ -115,10 +121,11 @@ async function fetchSnippets(sortBy = 'createdAt', order = 'desc') {
     } catch (err) {
         snippetsGrid.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
+        <div class="empty-icon"><i data-lucide="server-crash" style="width:48px;height:48px;"></i></div>
         <div class="empty-title">Could not connect to server</div>
         <div class="empty-desc">Make sure the backend is running on port 5000</div>
       </div>`;
+        if (window.lucide) window.lucide.createIcons();
         showToast('Cannot reach backend. Is it running?', 'error');
     }
 }
@@ -141,26 +148,48 @@ async function updateStats() {
     }
 }
 
-function renderStatsLists(tags, languages) {
-    if (topTagsList) {
-        topTagsList.innerHTML = (tags || []).map(tag => `
-            <div class="stats-item" onclick="setTagFilter('${tag._id}')" style="cursor:pointer">
-                <span class="stats-item-label"># ${tag._id}</span>
-                <span class="stats-item-count">${tag.count}</span>
-            </div>
-        `).join('');
-    }
+let myLanguageChart = null;
 
-    if (languageList) {
-        languageList.innerHTML = (languages || []).map(lang => `
-            <div class="stats-item">
-                <span class="stats-item-label">
-                    <span class="language-dot" style="background:${getLangColor(lang._id)}"></span>
-                    ${lang._id}
-                </span>
-                <span class="stats-item-count">${lang.count}</span>
-            </div>
-        `).join('');
+function renderStatsLists(tags, languages) {
+    // Render Language Chart
+    if (languageChartEl && window.Chart) {
+        const ctx = languageChartEl.getContext('2d');
+        const labels = (languages || []).map(l => l._id);
+        const data = (languages || []).map(l => l.count);
+        const colors = labels.map(l => getLangColor(l));
+
+        if (myLanguageChart) {
+            myLanguageChart.destroy();
+        }
+
+        myLanguageChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        labels: {
+                            color: '#4b5175',
+                            font: { size: 10, family: "'Inter', sans-serif" },
+                            boxWidth: 10,
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
     }
 }
 
@@ -213,14 +242,16 @@ function renderSnippets() {
     if (list.length === 0) {
         snippetsGrid.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">📭</div>
+        <div class="empty-icon"><i data-lucide="inbox" style="width:48px;height:48px;opacity:0.5"></i></div>
         <div class="empty-title">${allSnippets.length === 0 ? 'No snippets yet' : 'No results found'}</div>
         <div class="empty-desc">${allSnippets.length === 0 ? 'Create your first snippet using the form.' : 'Try a different search or filter.'}</div>
       </div>`;
+        if (window.lucide) window.lucide.createIcons();
         return;
     }
 
     snippetsGrid.innerHTML = list.map(s => buildCard(s)).join('');
+    if (window.lucide) window.lucide.createIcons();
     // Syntax highlight after render
     if (window.hljs) {
         document.querySelectorAll('.card-content code').forEach(el => hljs.highlightElement(el));
@@ -258,25 +289,27 @@ function buildCard(s) {
         <h3 class="card-title">${escapeHtml(s.title)}</h3>
         <div class="card-actions">
           <button class="action-btn copy-btn" title="Copy content" data-id="${s._id}" aria-label="Copy content">
-            ⧉
+            <i data-lucide="copy" style="width:14px;height:14px;"></i>
           </button>
           <button class="action-btn fav-btn ${s.favorite ? 'active' : ''}" title="${s.favorite ? 'Unstar' : 'Star'}" data-id="${s._id}" aria-label="${s.favorite ? 'Remove from favorites' : 'Add to favorites'}">
-            ${s.favorite ? '★' : '☆'}
+            <i data-lucide="star" style="width:14px;height:14px; ${s.favorite ? 'fill: currentColor;' : ''}"></i>
           </button>
           <button class="action-btn del-btn" title="Delete" data-id="${s._id}" aria-label="Delete snippet">
-            ✕
+            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
           </button>
         </div>
       </div>
       <div class="card-content"><code>${content}</code></div>
       ${tagsHTML ? `<div class="card-tags">${tagsHTML}</div>` : ''}
       <div class="card-footer">
-        <span class="card-date">📅 ${date}</span>
+        <span class="card-date" style="display:flex;align-items:center;gap:4px"><i data-lucide="calendar" style="width:12px;height:12px;"></i> ${date}</span>
         <span class="card-language" style="font-size:0.72rem; color:var(--text-secondary); display:flex; align-items:center; gap:4px">
            <span class="language-dot" style="background:${getLangColor(s.language || 'javascript')}"></span>
            ${escapeHtml(s.language || 'javascript')}
         </span>
-        <span class="fav-indicator ${s.favorite ? 'shown' : ''}">★ Favorite</span>
+        <span class="fav-indicator ${s.favorite ? 'shown' : ''}" style="display:flex;align-items:center;gap:4px">
+           <i data-lucide="star" style="width:12px;height:12px;fill:currentColor;"></i> Favorite
+        </span>
       </div>
     </article>`;
 }

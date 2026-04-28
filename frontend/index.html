@@ -11,6 +11,10 @@
   <!-- Highlight.js for syntax highlighting -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -41,7 +45,8 @@
     <!-- ─── Left Sidebar: Form ─── -->
     <aside class="left-sidebar">
       <div class="panel">
-        <p class="panel-title">✦ New Snippet</p>
+        <p class="panel-title" style="display:flex;align-items:center;gap:6px;"><i data-lucide="plus-square"
+            style="width:16px;height:16px"></i> New Snippet</p>
         <form id="snippetForm" novalidate>
           <div class="form-group">
             <label for="titleInput">Title *</label>
@@ -78,18 +83,22 @@
 
       <!-- Quick Tips Panel -->
       <div class="panel">
-        <p class="panel-title">💡 MongoDB Features</p>
+        <p class="panel-title" style="display:flex;align-items:center;gap:6px;"><i data-lucide="database"
+            style="width:16px;height:16px"></i> MongoDB Features</p>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
           <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--text-primary)">⚡</span> <strong>Indexing:</strong> Title, Tags, and Language are
+            <span style="color:var(--text-primary)"><i data-lucide="zap" style="width:14px;height:14px"></i></span>
+            <strong>Indexing:</strong> Title, Tags, and Language are
             indexed for O(1) searches.
           </li>
           <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--success)">📊</span> <strong>Aggregation:</strong> Statistics are computed using
+            <span style="color:var(--success)"><i data-lucide="bar-chart-2" style="width:14px;height:14px"></i></span>
+            <strong>Aggregation:</strong> Statistics are computed using
             <code>$facet</code> and <code>$group</code>.
           </li>
           <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--warning)">🔍</span> <strong>Text Search:</strong> Multi-field text index for
+            <span style="color:var(--warning)"><i data-lucide="search" style="width:14px;height:14px"></i></span>
+            <strong>Text Search:</strong> Multi-field text index for
             powerful fuzzy search.
           </li>
         </ul>
@@ -101,22 +110,25 @@
 
       <!-- Search -->
       <div class="search-wrapper" role="search">
-        <span class="search-icon" aria-hidden="true">🔍</span>
+        <i data-lucide="search" class="search-icon" style="width:16px;height:16px" aria-hidden="true"></i>
         <input type="text" id="searchInput" placeholder="Search snippets by title, tag, or content..."
           aria-label="Search snippets" autocomplete="off" />
-        <button class="clear-search" id="clearSearch" aria-label="Clear search" title="Clear">✕</button>
+        <button class="clear-search" id="clearSearch" aria-label="Clear search" title="Clear"><i data-lucide="x"
+            style="width:14px;height:14px"></i></button>
       </div>
 
       <!-- Active Tag Filter Banner -->
       <div class="active-filter-banner" id="filterBanner">
-        <span>🏷 Filtering by tag: <strong id="activeTagLabel"></strong></span>
+        <span style="display:flex;align-items:center;gap:6px;"><i data-lucide="tag" style="width:14px;height:14px"></i>
+          Filtering by tag: <strong id="activeTagLabel"></strong></span>
         <button class="clear-filter-btn" id="clearTagFilter">Clear filter</button>
       </div>
 
       <!-- Filter Bar -->
       <div class="filter-bar" id="filterBar" role="group" aria-label="Filter snippets">
         <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="favorites">★ Favorites</button>
+        <button class="filter-btn" data-filter="favorites" style="display:flex;align-items:center;gap:4px;"><i
+            data-lucide="star" style="width:12px;height:12px"></i> Favorites</button>
       </div>
 
       <!-- Snippets Header -->
@@ -141,7 +153,8 @@
     <!-- ─── Right Sidebar: Stats ─── -->
     <aside class="right-sidebar">
       <div class="panel stats-panel">
-        <p class="panel-title">📈 Analytics</p>
+        <p class="panel-title" style="display:flex;align-items:center;gap:6px;"><i data-lucide="pie-chart"
+            style="width:16px;height:16px"></i> Analytics</p>
         <div class="stat-group">
           <span class="stat-label">Total Snippets</span>
           <strong class="stat-value" id="totalCount">0</strong>
@@ -152,16 +165,9 @@
         </div>
 
         <div class="stats-section">
-          <p class="stats-section-title">Top Tags</p>
-          <div id="topTagsList" class="stats-list">
-            <!-- Populated via script -->
-          </div>
-        </div>
-
-        <div class="stats-section">
-          <p class="stats-section-title">Languages</p>
-          <div id="languageList" class="stats-list">
-            <!-- Populated via script -->
+          <p class="stats-section-title">Languages Breakdown</p>
+          <div style="position: relative; height: 180px; width: 100%; margin-top: 10px;">
+            <canvas id="languageChart"></canvas>
           </div>
         </div>
       </div>
@@ -193,7 +199,7 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 
 </html>
