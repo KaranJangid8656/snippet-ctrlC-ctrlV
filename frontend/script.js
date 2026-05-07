@@ -8,8 +8,10 @@ const API_BASE = 'http://localhost:5000';
 let allSnippets = [];        // full list from server
 let activeFilter = 'all';    // 'all' | 'favorites'
 let activeTagFilter = null;  // tag string or null
+let activeFolderFilter = null; // folder ID or null
 let searchQuery = '';
 let sortMode = 'newest';
+let allFolders = [];
 
 // ─── DOM refs ────────────────────────────────────────
 const form = document.getElementById('snippetForm');
@@ -32,11 +34,12 @@ const filterBanner = document.getElementById('filterBanner');
 const activeTagLabel = document.getElementById('activeTagLabel');
 const clearTagFilter = document.getElementById('clearTagFilter');
 
-const topTagsList = document.getElementById('topTagsList');
-const languageChartEl = document.getElementById('languageChart');
-const toast = document.getElementById('toast');
-const toastMsg = document.getElementById('toastMsg');
 const toastIcon = document.getElementById('toastIcon');
+
+const foldersPanel = document.getElementById('foldersPanel');
+const foldersList = document.getElementById('foldersList');
+const addFolderBtn = document.getElementById('addFolderBtn');
+const folderSelect = document.getElementById('folderSelect');
 
 // ─── Modal refs ──────────────────────────────────────
 let currentModalSnippetId = null;
@@ -48,6 +51,30 @@ const modalCopyBtn = document.getElementById('modalCopyBtn');
 const modalFavBtn = document.getElementById('modalFavBtn');
 const featuredPanel = document.getElementById('featuredPanel');
 const featuredContent = document.getElementById('featuredContent');
+
+// ─── Auth refs ───────────────────────────────────────
+let authMode = 'login'; // 'login' | 'register'
+const authModal = document.getElementById('authModal');
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const authForm = document.getElementById('authForm');
+const authSubmitBtn = document.getElementById('authSubmitBtn');
+const authToggleBtn = document.getElementById('authToggleBtn');
+const closeAuthModal = document.getElementById('closeAuthModal');
+const authModalTitle = document.getElementById('authModalTitle');
+const authToggleText = document.getElementById('authToggleText');
+const nameGroup = document.getElementById('nameGroup');
+const userProfile = document.getElementById('userProfile');
+const userNameDisplay = document.getElementById('userName');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const authName = document.getElementById('authName');
+
+// ─── Folder Modal refs ───────────────────────────────
+const folderModal = document.getElementById('folderModal');
+const folderForm = document.getElementById('folderForm');
+const closeFolderModal = document.getElementById('closeFolderModal');
+const newFolderName = document.getElementById('newFolderName');
 
 if (closeModalBtn) {
     closeModalBtn.addEventListener('click', () => {
@@ -115,12 +142,23 @@ contentInput.addEventListener('input', () => {
 // ─── Fetch all snippets ──────────────────────────────
 async function fetchSnippets(sortBy = 'createdAt', order = 'desc') {
     try {
-        const res = await fetch(`${API_BASE}/snippets?sortBy=${sortBy}&order=${order}`);
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        let url = `${API_BASE}/snippets?sortBy=${sortBy}&order=${order}`;
+        if (activeFolderFilter) url += `&folderId=${activeFolderFilter}`;
+
+        const res = await fetch(url, { headers });
         if (!res.ok) throw new Error('Failed to load snippets');
-        allSnippets = await res.json();
+
+        const data = await res.json();
+        // Handle both new { snippets: [] } and old [] formats
+        allSnippets = Array.isArray(data) ? data : (data.snippets || []);
+
         renderSnippets();
         updateStats();
     } catch (err) {
+        console.error('Fetch error:', err);
         snippetsGrid.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon"><i data-lucide="server-crash" style="width:48px;height:48px;"></i></div>
@@ -135,7 +173,10 @@ async function fetchSnippets(sortBy = 'createdAt', order = 'desc') {
 // ─── Update header stats ─────────────────────────────
 async function updateStats() {
     try {
-        const res = await fetch(`${API_BASE}/snippets/stats`);
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        const res = await fetch(`${API_BASE}/snippets/stats`, { headers });
         if (!res.ok) throw new Error();
         const stats = await res.json();
 
@@ -404,7 +445,13 @@ clearTagFilter.addEventListener('click', () => {
 // ─── Favorite toggle ─────────────────────────────────
 async function toggleFavorite(id) {
     try {
-        const res = await fetch(`${API_BASE}/snippets/${id}/favorite`, { method: 'PATCH' });
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        const res = await fetch(`${API_BASE}/snippets/${id}/favorite`, {
+            method: 'PATCH',
+            headers
+        });
         if (!res.ok) throw new Error();
         const updated = await res.json();
         const idx = allSnippets.findIndex(s => s._id === id);
@@ -426,7 +473,13 @@ async function deleteSnippet(id) {
         card.style.transform = 'scale(0.95)';
     }
     try {
-        const res = await fetch(`${API_BASE}/snippets/${id}`, { method: 'DELETE' });
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        const res = await fetch(`${API_BASE}/snippets/${id}`, {
+            method: 'DELETE',
+            headers
+        });
         if (!res.ok) throw new Error();
         allSnippets = allSnippets.filter(s => s._id !== id);
         setTimeout(() => {
@@ -446,6 +499,7 @@ form.addEventListener('submit', async (e) => {
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
     const tagsRaw = tagsInput.value.trim();
+    const folderId = folderSelect.value;
     const tags = tagsRaw
         ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean)
         : [];
@@ -463,10 +517,14 @@ form.addEventListener('submit', async (e) => {
     if (submitIcon) submitIcon.textContent = '⏳';
 
     try {
+        const token = localStorage.getItem('token');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
         const res = await fetch(`${API_BASE}/snippets`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, content, tags }),
+            headers: headers,
+            body: JSON.stringify({ title, content, tags, folderId }),
         });
         if (!res.ok) throw new Error();
         const newSnippet = await res.json();
@@ -499,9 +557,13 @@ searchInput.addEventListener('input', () => {
     searchDebounce = setTimeout(async () => {
         if (searchQuery.trim()) {
             try {
-                const res = await fetch(`${API_BASE}/snippets/search?q=${encodeURIComponent(searchQuery)}`);
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+                const res = await fetch(`${API_BASE}/snippets/search?q=${encodeURIComponent(searchQuery)}`, { headers });
                 if (!res.ok) throw new Error();
-                allSnippets = await res.json();
+                const data = await res.json();
+                allSnippets = Array.isArray(data) ? data : (data.snippets || []);
                 renderSnippets();
             } catch (err) {
                 console.error('Search failed:', err);
@@ -592,7 +654,219 @@ window.copyToClipboard = async (text) => {
     }
 };
 
+// ─── Auth Logic ──────────────────────────────────────
+if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+        authModal.classList.add('active');
+    });
+}
+
+if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', () => {
+        authModal.classList.remove('active');
+    });
+}
+
+if (authToggleBtn) {
+    authToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        authMode = authMode === 'login' ? 'register' : 'login';
+        authModalTitle.textContent = authMode === 'login' ? 'Login' : 'Create Account';
+        authSubmitBtn.textContent = authMode === 'login' ? 'Login' : 'Sign Up';
+        authToggleText.textContent = authMode === 'login' ? "Don't have an account?" : "Already have an account?";
+        authToggleBtn.textContent = authMode === 'login' ? "Sign Up" : "Login";
+        nameGroup.style.display = authMode === 'register' ? 'block' : 'none';
+        if (authMode === 'register') authName.required = true;
+        else authName.required = false;
+    });
+}
+
+if (authForm) {
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = authEmail.value;
+        const password = authPassword.value;
+        const name = authName.value;
+
+        const url = authMode === 'login' ? `${API_BASE}/api/v1/auth/login` : `${API_BASE}/api/v1/auth/register`;
+        const body = authMode === 'login' ? { email, password } : { name, email, password };
+
+        authSubmitBtn.disabled = true;
+        authSubmitBtn.textContent = 'Processing...';
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Auth failed');
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            showToast(`Welcome back, ${data.user.name}!`, 'success');
+            authModal.classList.remove('active');
+            authForm.reset();
+            checkAuth();
+            fetchSnippets(); // Reload snippets with user context
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            authSubmitBtn.disabled = false;
+            authSubmitBtn.textContent = authMode === 'login' ? 'Login' : 'Sign Up';
+        }
+    });
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        showToast('Logged out successfully', 'info');
+        checkAuth();
+        fetchSnippets(); // Reload snippets to show only public ones
+    });
+}
+
+function checkAuth() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        loginBtn.style.display = 'none';
+        userProfile.style.display = 'flex';
+        userNameDisplay.textContent = user.name;
+        foldersPanel.style.display = 'block';
+        fetchFolders();
+    } else {
+        loginBtn.style.display = 'block';
+        userProfile.style.display = 'none';
+        foldersPanel.style.display = 'none';
+        activeFolderFilter = null;
+    }
+}
+
+// ─── Folders Logic ──────────────────────────────────
+async function fetchFolders() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const res = await fetch(`${API_BASE}/api/v1/folders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error();
+        allFolders = await res.json();
+        renderFolders();
+    } catch (err) {
+        console.error('Failed to fetch folders:', err);
+    }
+}
+
+function renderFolders() {
+    // Render Sidebar List
+    foldersList.innerHTML = `
+        <div class="folder-item ${!activeFolderFilter ? 'active' : ''}" data-id="all">
+            <span>All Snippets</span>
+        </div>
+        ${allFolders.map(f => `
+            <div class="folder-item ${activeFolderFilter === f._id ? 'active' : ''}" data-id="${f._id}">
+                <span>${escapeHtml(f.name)}</span>
+                <div class="folder-actions">
+                    <button class="action-btn delete-folder" data-id="${f._id}"><i data-lucide="trash-2" style="width:10px;height:10px"></i></button>
+                </div>
+            </div>
+        `).join('')}
+    `;
+
+    // Render Dropdown in Form
+    const currentVal = folderSelect.value;
+    folderSelect.innerHTML = `
+        <option value="">No Folder</option>
+        ${allFolders.map(f => `<option value="${f._id}">${escapeHtml(f.name)}</option>`).join('')}
+    `;
+    folderSelect.value = currentVal;
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+if (addFolderBtn) {
+    addFolderBtn.addEventListener('click', () => {
+        folderModal.classList.add('active');
+        newFolderName.focus();
+    });
+}
+
+if (closeFolderModal) {
+    closeFolderModal.addEventListener('click', () => {
+        folderModal.classList.remove('active');
+    });
+}
+
+if (folderForm) {
+    folderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = newFolderName.value.trim();
+        if (!name) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE}/api/v1/folders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name })
+            });
+
+            if (!res.ok) throw new Error('Duplicate folder name or server error');
+
+            newFolderName.value = '';
+            folderModal.classList.remove('active');
+            fetchFolders();
+            showToast(`Folder "${name}" created`, 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    });
+}
+
+if (foldersList) {
+    foldersList.addEventListener('click', async (e) => {
+        const delBtn = e.target.closest('.delete-folder');
+        if (delBtn) {
+            e.stopPropagation();
+            if (!confirm('Are you sure? Snippets in this folder will be unassigned.')) return;
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE}/api/v1/folders/${delBtn.dataset.id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error();
+                if (activeFolderFilter === delBtn.dataset.id) activeFolderFilter = null;
+                fetchFolders();
+                fetchSnippets();
+            } catch {
+                showToast('Failed to delete folder', 'error');
+            }
+            return;
+        }
+
+        const item = e.target.closest('.folder-item');
+        if (item) {
+            activeFolderFilter = item.dataset.id === 'all' ? null : item.dataset.id;
+            renderFolders();
+            fetchSnippets();
+        }
+    });
+}
+
 // ─── Init ────────────────────────────────────────────
+checkAuth();
 fetchSnippets().then(() => {
     // Small delay to ensure snippets are loaded before picking featured
     setTimeout(updateFeaturedSnippet, 500);

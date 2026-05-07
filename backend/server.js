@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const snippetRoutes = require('./routes/snippets');
 const authRoutes = require('./routes/auth');
+const folderRoutes = require('./routes/folders');
 const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // Routes (versioned API)
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/folders', folderRoutes);
 app.use('/api/v1/snippets', snippetRoutes);
 
 // Backward compatibility — keep old /snippets route working

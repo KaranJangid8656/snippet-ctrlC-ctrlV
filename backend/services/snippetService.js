@@ -21,11 +21,14 @@ const snippetService = {
      * Fetch all snippets with sorting and pagination
      */
     async getAllSnippets(query, userId = null) {
-        const { sortBy = 'createdAt', order = 'desc', limit = 100, page = 1 } = query;
+        const { sortBy = 'createdAt', order = 'desc', limit = 100, page = 1, folderId } = query;
         const sortOptions = {};
         sortOptions[sortBy] = order === 'desc' ? -1 : 1;
 
         const filter = this._buildUserFilter(userId);
+        if (folderId) {
+            filter.folder = folderId;
+        }
 
         const total = await Snippet.countDocuments(filter);
         const snippets = await Snippet.find(filter)
@@ -94,13 +97,14 @@ const snippetService = {
      * Create a new snippet (owned by a user if logged in)
      */
     async createSnippet(snippetData, userId = null) {
-        const { title, content, tags, language } = snippetData;
+        const { title, content, tags, language, folderId } = snippetData;
         const snippet = new Snippet({
             title,
             content,
             tags: Array.isArray(tags) ? tags : [],
             language: language || 'javascript',
-            user: userId || null
+            user: userId || null,
+            folder: folderId || null
         });
         return await snippet.save();
     },

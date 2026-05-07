@@ -304,6 +304,23 @@ textarea {
   line-height: 1.6;
 }
 
+select {
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.65rem 0.9rem;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: var(--border-focus);
+}
+
 .char-count {
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -752,7 +769,8 @@ textarea {
   font-weight: 500;
   color: var(--text-primary);
   box-shadow: 0 8px 32px rgba(91, 82, 240, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-  z-index: 999;
+  z-index: 2000;
+  /* Increased to stay above modals */
   transform: translateY(100px);
   opacity: 0;
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -898,6 +916,141 @@ textarea {
   border-bottom-right-radius: var(--radius-card);
 }
 
+/* ─── Auth UI ─── */
+.auth-group {
+  display: flex;
+  align-items: center;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-primary);
+  padding: 4px 6px 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.auth-modal {
+  max-width: 420px;
+  background: #ffffff;
+  border: none;
+  overflow: hidden;
+}
+
+.auth-modal .modal-header {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  padding: 2.5rem 1.5rem;
+  position: relative;
+}
+
+.auth-modal .modal-header h2 {
+  color: #fff;
+  font-size: 1.5rem;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-modal .modal-header .action-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+}
+
+.auth-modal .modal-header .action-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.auth-modal .modal-body {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 0;
+}
+
+.auth-modal .form-group label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.auth-modal input {
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+  border: 1.5px solid #f1f5f9;
+}
+
+.auth-modal input:focus {
+  border-color: #6366f1;
+  background: #fff;
+}
+
+.auth-modal .btn-primary {
+  padding: 1rem;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.auth-modal .btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+.auth-toggle {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.88rem;
+}
+
+.auth-toggle a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.auth-toggle a:hover {
+  text-decoration: underline;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: var(--bg-primary);
+  border-color: var(--text-muted);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+}
+
+.btn-ghost:hover {
+  color: var(--danger);
+  background: rgba(232, 54, 93, 0.05);
+}
+
 .modal-body pre {
   margin: 0;
   font-family: 'JetBrains Mono', monospace;
@@ -911,6 +1064,53 @@ textarea {
   background: transparent;
   padding: 0;
 }
+
+/* ─── Folders ─── */
+.folders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.folder-item:hover {
+  background: var(--bg-primary);
+  color: var(--accent);
+}
+
+.folder-item.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.folder-item .folder-actions {
+  display: none;
+  gap: 4px;
+}
+
+.folder-item:hover .folder-actions {
+  display: flex;
+}
+
+.folder-item .action-btn {
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  border-radius: 50%;
+}
+
 
 /* ─── Responsive ─── */
 @media (max-width: 900px) {

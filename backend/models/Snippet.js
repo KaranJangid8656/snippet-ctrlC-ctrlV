@@ -6,6 +6,11 @@ const snippetSchema = new mongoose.Schema({
     ref: 'User',
     default: null // null means legacy/public snippet (backward compatible)
   },
+  folder: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Folder',
+    default: null
+  },
   title: {
     type: String,
     required: [true, 'Title is required'],
