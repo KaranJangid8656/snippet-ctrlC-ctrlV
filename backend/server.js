@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const snippetRoutes = require('./routes/snippets');
+const authRoutes = require('./routes/auth');
 const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -14,7 +15,11 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/snippetsav
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Routes (versioned API)
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/snippets', snippetRoutes);
+
+// Backward compatibility — keep old /snippets route working
 app.use('/snippets', snippetRoutes);
 
 // Error Middleware (must be after routes)

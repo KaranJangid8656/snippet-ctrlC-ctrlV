@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const snippetSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    default: null // null means legacy/public snippet (backward compatible)
+  },
   title: {
     type: String,
     required: [true, 'Title is required'],

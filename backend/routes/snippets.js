@@ -8,8 +8,11 @@ const {
     toggleFavorite,
     deleteSnippet
 } = require('../controllers/snippetController');
+const { optionalAuth } = require('../middleware/authMiddleware');
 
-// All routes are prepended with /snippets in server.js
+// All snippet routes use optionalAuth — works for both logged-in and anonymous users
+router.use(optionalAuth);
+
 router
     .route('/')
     .get(getSnippets)
