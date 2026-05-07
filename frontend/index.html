@@ -45,8 +45,8 @@
     <!-- ─── Left Sidebar: Form ─── -->
     <aside class="left-sidebar">
       <div class="panel">
-        <p class="panel-title" style="display:flex;align-items:center;gap:6px;"><i data-lucide="plus-square"
-            style="width:16px;height:16px"></i> New Snippet</p>
+        <p class="panel-title" style="display:flex;align-items:center;gap:6px;justify-content:flex-start;"><i
+            data-lucide="plus-square" style="width:16px;height:16px"></i> New Snippet</p>
         <form id="snippetForm" novalidate>
           <div class="form-group">
             <label for="titleInput">Title *</label>
@@ -59,18 +59,7 @@
               required></textarea>
             <span class="char-count"><span id="charCount">0</span> / 5000</span>
           </div>
-          <div class="form-group">
-            <label for="languageInput">Language</label>
-            <select id="languageInput">
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="sql">SQL</option>
-              <option value="markdown">Markdown</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
+
           <div class="form-group">
             <label for="tagsInput">Tags <span style="color:var(--text-muted)">(comma-separated)</span></label>
             <input type="text" id="tagsInput" placeholder="e.g. javascript, utility, hook" autocomplete="off" />
@@ -81,28 +70,7 @@
         </form>
       </div>
 
-      <!-- Quick Tips Panel -->
-      <div class="panel">
-        <p class="panel-title" style="display:flex;align-items:center;gap:6px;"><i data-lucide="database"
-            style="width:16px;height:16px"></i> MongoDB Features</p>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
-          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--text-primary)"><i data-lucide="zap" style="width:14px;height:14px"></i></span>
-            <strong>Indexing:</strong> Title, Tags, and Language are
-            indexed for O(1) searches.
-          </li>
-          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--success)"><i data-lucide="bar-chart-2" style="width:14px;height:14px"></i></span>
-            <strong>Aggregation:</strong> Statistics are computed using
-            <code>$facet</code> and <code>$group</code>.
-          </li>
-          <li style="font-size:0.8rem;color:var(--text-secondary);display:flex;gap:8px;align-items:flex-start">
-            <span style="color:var(--warning)"><i data-lucide="search" style="width:14px;height:14px"></i></span>
-            <strong>Text Search:</strong> Multi-field text index for
-            powerful fuzzy search.
-          </li>
-        </ul>
-      </div>
+
     </aside>
 
     <!-- ─── Content Area ─── -->
@@ -153,8 +121,8 @@
     <!-- ─── Right Sidebar: Stats ─── -->
     <aside class="right-sidebar">
       <div class="panel stats-panel">
-        <p class="panel-title" style="display:flex;align-items:center;gap:6px;"><i data-lucide="pie-chart"
-            style="width:16px;height:16px"></i> Analytics</p>
+        <p class="panel-title" style="display:flex;align-items:center;gap:6px;justify-content:flex-start;"><i
+            data-lucide="pie-chart" style="width:16px;height:16px"></i> Analytics</p>
         <div class="stat-group">
           <span class="stat-label">Total Snippets</span>
           <strong class="stat-value" id="totalCount">0</strong>

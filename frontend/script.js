@@ -31,7 +31,7 @@ const sortSelect = document.getElementById('sortSelect');
 const filterBanner = document.getElementById('filterBanner');
 const activeTagLabel = document.getElementById('activeTagLabel');
 const clearTagFilter = document.getElementById('clearTagFilter');
-const languageInput = document.getElementById('languageInput');
+
 const topTagsList = document.getElementById('topTagsList');
 const languageChartEl = document.getElementById('languageChart');
 const toast = document.getElementById('toast');
@@ -46,6 +46,8 @@ const modalContent = document.getElementById('modalContent');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const modalCopyBtn = document.getElementById('modalCopyBtn');
 const modalFavBtn = document.getElementById('modalFavBtn');
+const featuredPanel = document.getElementById('featuredPanel');
+const featuredContent = document.getElementById('featuredContent');
 
 if (closeModalBtn) {
     closeModalBtn.addEventListener('click', () => {
@@ -464,7 +466,7 @@ form.addEventListener('submit', async (e) => {
         const res = await fetch(`${API_BASE}/snippets`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, content, tags, language: languageInput.value }),
+            body: JSON.stringify({ title, content, tags }),
         });
         if (!res.ok) throw new Error();
         const newSnippet = await res.json();
@@ -542,5 +544,56 @@ sortSelect.addEventListener('change', () => {
     fetchSnippets(sortBy, order);
 });
 
+// ─── Update Featured Snippet ────────────────────────
+function updateFeaturedSnippet() {
+    if (!featuredPanel || !featuredContent) return;
+
+    // Pick a random favorite snippet, or just a random one if no favorites
+    const favorites = allSnippets.filter(s => s.favorite);
+    const pool = favorites.length > 0 ? favorites : allSnippets;
+
+    if (pool.length === 0) {
+        featuredPanel.style.display = 'none';
+        return;
+    }
+
+    const snippet = pool[Math.floor(Math.random() * pool.length)];
+    featuredPanel.style.display = 'block';
+
+    featuredContent.innerHTML = `
+        <div style="margin-bottom: 8px;">
+            <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${escapeHtml(snippet.title)}</p>
+            <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; gap:8px;">
+                <span>#${snippet.language}</span>
+                <span>${snippet.tags.slice(0, 2).map(t => '#' + t).join(' ')}</span>
+            </div>
+        </div>
+        <div class="card-content" style="max-height: 80px; font-size: 0.7rem; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border);">
+            <code>${escapeHtml(snippet.content)}</code>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 10px; padding: 6px; font-size: 0.75rem;" onclick="copyToClipboard('${escapeHtml(snippet.content).replace(/'/g, "\\'")}')">
+            Copy Quick Reference
+        </button>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+    if (window.hljs) {
+        featuredContent.querySelectorAll('code').forEach(el => hljs.highlightElement(el));
+    }
+}
+
+// Global copy helper for the featured snippet button
+window.copyToClipboard = async (text) => {
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied reference!', 'copy');
+    } catch {
+        showToast('Copy failed', 'error');
+    }
+};
+
 // ─── Init ────────────────────────────────────────────
-fetchSnippets();
+fetchSnippets().then(() => {
+    // Small delay to ensure snippets are loaded before picking featured
+    setTimeout(updateFeaturedSnippet, 500);
+});
