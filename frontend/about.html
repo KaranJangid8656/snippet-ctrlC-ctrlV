@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - SnippetSaver</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .about-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .about-header h1 {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .about-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .about-section {
+            margin-bottom: 3rem;
+        }
+
+        .about-section h2 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .about-section h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 0.8rem;
+            margin-top: 2rem;
+        }
+
+        .about-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h4 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .steps-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .steps-list li {
+            counter-increment: step-counter;
+            background: var(--bg-card);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            position: relative;
+            padding-left: 3.5rem;
+        }
+
+        .steps-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 1.5rem;
+            background: var(--accent);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .steps-list h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .steps-list p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .shortcut-key {
+            background: var(--bg-secondary);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips-list li {
+            background: var(--bg-card);
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .tech-badge {
+            background: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer-note a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 1rem;
+            }
+
+            .about-header h1 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .shortcuts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ─── Header ─── -->
+    <header>
+        <div class="header-inner">
+            <div class="header-left">
+                <a href="index.html" class="logo" aria-label="Snippet Saver Home">
+                    <span class="logo-text">SnippetSaver</span>
+                </a>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="agent.html" class="nav-link">Agent</a>
+                    <a href="about.html" class="nav-link">About</a>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <div id="authSection" class="auth-group">
+                    <button id="loginBtn" class="btn btn-outline" style="margin-right:8px">Login</button>
+                    <div id="userProfile" class="user-profile" style="display:none">
+                        <span id="userName" class="user-name"></span>
+                        <button id="logoutBtn" class="btn btn-ghost" title="Logout"><i data-lucide="log-out"
+                                style="width:16px;height:16px"></i></button>
+                    </div>
+                </div>
+                <a href="https://github.com/KaranJangid8656/snippet-ctrlC-ctrlV" target="_blank" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                        </path>
+                    </svg>
+                    GitHub Repo
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="about-container">
+        <div class="about-header">
+            <h1>SnippetSaver</h1>
+            <p>Your intelligent code snippet manager with AI-powered generation</p>
+        </div>
+
+        <!-- Features Section -->
+        <section class="about-section">
+            <h2><i data-lucide="star" style="width:24px;height:24px"></i> Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4><i data-lucide="save" style="width:18px;height:18px"></i> Save & Organize</h4>
+                    <p>Save code snippets with titles, tags, and folders. Keep your code organized and easily searchable.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i data-lucide="bot" style="width:18px;height:18px"></i> AI Agent</h4>
+                    <p>Generate code snippets using AI. Simply describe what you need and get instant code solutions.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i data-lucide="search" style="width:18px;height:18px"></i> Smart Search</h4>
+                    <p>Search snippets by title, content, or tags. Filter by favorites or specific tags for quick access.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i data-lucide="folder" style="width:18px;height:18px"></i> Folder System</h4>
+                    <p>Organize snippets into custom folders. Perfect for categorizing projects by language or purpose.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i data-lucide="star" style="width:18px;height:18px"></i> Favorites</h4>
+                    <p>Mark frequently used snippets as favorites for quick access to your most important code.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i data-lucide="copy" style="width:18px;height:18px"></i> One-Click Copy</h4>
+                    <p>Copy any snippet to clipboard with a single click. Perfect for quick code insertion.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to Use Section -->
+        <section class="about-section">
+            <h2><i data-lucide="book-open" style="width:24px;height:24px"></i> How to Use</h2>
+            
+            <h3>Getting Started</h3>
+            <ol class="steps-list">
+                <li>
+                    <h4>Create Your First Snippet</h4>
+                    <p>Go to the Home page, fill in the title and paste your code. Add tags and optionally assign a folder, then click "Save Snippet".</p>
+                </li>
+                <li>
+                    <h4>Organize with Folders</h4>
+                    <p>Create folders to categorize your snippets. Use folders like "JavaScript", "Python", "React", or project-specific names.</p>
+                </li>
+                <li>
+                    <h4>Use Tags for Better Search</h4>
+                    <p>Add comma-separated tags to your snippets (e.g., "utility, function, array"). This makes finding specific code much easier.</p>
+                </li>
+                <li>
+                    <h4>Search and Filter</h4>
+                    <p>Use the search bar to find snippets by title, content, or tags. Click on tags to filter by specific keywords.</p>
+                </li>
+            </ol>
+
+            <h3>Using the AI Agent</h3>
+            <ol class="steps-list">
+                <li>
+                    <h4>Navigate to Agent</h4>
+                    <p>Click on the "Agent" link in the navigation menu to access the AI-powered code generator.</p>
+                </li>
+                <li>
+                    <h4>Describe Your Need</h4>
+                    <p>Type what you need in natural language, like "Create a debounce function in JavaScript" or "Generate a Python class for a bank account".</p>
+                </li>
+                <li>
+                    <h4>Get Code Instantly</h4>
+                    <p>The AI will generate code with explanations. You can copy it directly or save it to your snippet collection.</p>
+                </li>
+                <li>
+                    <h4>Save Generated Code</h4>
+                    <p>When code is generated, a save button appears. Click it to save the snippet with a default title that you can edit.</p>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Keyboard Shortcuts Section -->
+        <section class="about-section">
+            <h2><i data-lucide="keyboard" style="width:24px;height:24px"></i> Keyboard Shortcuts</h2>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <span>Save Snippet</span>
+                    <span class="shortcut-key">Ctrl + S</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Search</span>
+                    <span class="shortcut-key">Ctrl + K</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Clear Search</span>
+                    <span class="shortcut-key">Escape</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Send Message (Agent)</span>
+                    <span class="shortcut-key">Ctrl + Enter</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tips Section -->
+        <section class="about-section">
+            <h2><i data-lucide="lightbulb" style="width:24px;height:24px"></i> Tips & Best Practices</h2>
+            <ul class="tips-list">
+                <li><strong>Use Descriptive Titles:</strong> Make your snippet titles clear and specific. "Debounce Function" is better than "Function".</li>
+                <li><strong>Tag Consistently:</strong> Use consistent tag names across similar snippets. This makes filtering more effective.</li>
+                <li><strong>Add Context in Content:</strong> Include brief explanations or usage examples in the snippet content.</li>
+                <li><strong>Regular Cleanup:</strong> Periodically review and remove outdated or duplicate snippets.</li>
+                <li><strong>Backup Important Snippets:</strong> Consider exporting your most important snippets regularly.</li>
+                <li><strong>AI Prompts:</strong> Be specific with AI requests. Include language, requirements, and any constraints.</li>
+            </ul>
+        </section>
+
+        <!-- Tech Stack Section -->
+        <section class="about-section">
+            <h2><i data-lucide="layers" style="width:24px;height:24px"></i> Technology Stack</h2>
+            <p>SnippetSaver is built with modern web technologies to provide a fast, reliable, and user-friendly experience.</p>
+            <div class="tech-stack">
+                <span class="tech-badge">HTML5</span>
+                <span class="tech-badge">CSS3</span>
+                <span class="tech-badge">JavaScript (ES6+)</span>
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">Express.js</span>
+                <span class="tech-badge">MongoDB</span>
+                <span class="tech-badge">Lucide Icons</span>
+                <span class="tech-badge">Highlight.js</span>
+            </div>
+        </section>
+
+        <div class="footer-note">
+            <p>Made by <a href="https://github.com/KaranJangid8656" target="_blank">Karan Suthar</a></p>
+            <p>Open source and available on <a href="https://github.com/KaranJangid8656/snippet-ctrlC-ctrlV" target="_blank">GitHub</a></p>
+        </div>
+    </main>
+
+    <script>
+        // Initialize icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
