@@ -6,6 +6,7 @@ const {
     createSnippet,
     searchSnippets,
     toggleFavorite,
+    updateSnippet,
     deleteSnippet
 } = require('../controllers/snippetController');
 const { optionalAuth } = require('../middleware/authMiddleware');
@@ -22,6 +23,7 @@ router.get('/stats', getStats);
 router.get('/search', searchSnippets);
 
 router.patch('/:id/favorite', toggleFavorite);
+router.patch('/:id', updateSnippet);
 router.delete('/:id', deleteSnippet);
 
 module.exports = router;

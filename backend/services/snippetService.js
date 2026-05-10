@@ -147,16 +147,40 @@ const snippetService = {
      * Delete a snippet
      */
     async deleteSnippet(id, userId = null) {
-        const snippet = await Snippet.findById(id);
-        if (!snippet) return null;
+        const snippet = await Snippet.findOne({ _id: id, user: userId });
+        if (!snippet) {
+            throw new Error('Snippet not found');
+        }
+        await Snippet.deleteOne({ _id: id });
+        return snippet;
+    },
 
-        // Only allow deleting own snippets or legacy public ones
-        if (userId && snippet.user && snippet.user.toString() !== userId.toString()) {
-            return null;
+    /**
+     * Update a snippet
+     */
+    async updateSnippet(id, updateData, userId) {
+        const snippet = await Snippet.findOne({ _id: id, user: userId });
+        if (!snippet) {
+            throw new Error('Snippet not found');
         }
 
-        await Snippet.findByIdAndDelete(id);
-        return snippet;
+        // Only update allowed fields
+        const allowedFields = ['tags', 'title', 'content', 'folder'];
+        const updates = {};
+
+        for (const field of allowedFields) {
+            if (updateData[field] !== undefined) {
+                updates[field] = updateData[field];
+            }
+        }
+
+        const updatedSnippet = await Snippet.findByIdAndUpdate(
+            id,
+            updates,
+            { new: true, runValidators: true }
+        );
+
+        return updatedSnippet;
     }
 };
 

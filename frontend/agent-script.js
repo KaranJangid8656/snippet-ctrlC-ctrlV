@@ -4,6 +4,54 @@ const sendBtn = document.getElementById('sendBtn');
 
 const API_BASE = 'http://localhost:5001/api/v1';
 
+// Chat history management
+const CHAT_STORAGE_KEY = 'agentChatHistory';
+
+// Save chat history to localStorage
+function saveChatHistory() {
+    const messages = [];
+    const messageElements = chatMessages.querySelectorAll('.message');
+    
+    messageElements.forEach(element => {
+        const isUser = element.classList.contains('user');
+        const contentElement = element.querySelector('.message-content');
+        const codeElement = element.querySelector('code');
+        
+        const message = {
+            isUser: isUser,
+            text: contentElement ? contentElement.textContent.trim() : '',
+            code: codeElement ? codeElement.textContent : null,
+            title: element.dataset.title || 'AI Snippet'
+        };
+        
+        messages.push(message);
+    });
+    
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+}
+
+// Load chat history from localStorage
+function loadChatHistory() {
+    const savedHistory = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (savedHistory) {
+        try {
+            const messages = JSON.parse(savedHistory);
+            messages.forEach(message => {
+                addMessage(message.text, message.isUser, message.code, message.title);
+            });
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+            localStorage.removeItem(CHAT_STORAGE_KEY);
+        }
+    }
+}
+
+// Clear chat history
+function clearChatHistory() {
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+    chatMessages.innerHTML = '';
+}
+
 // Function to add a message to the chat
 function addMessage(text, isUser = false, code = null, title = 'AI Snippet') {
     const messageDiv = document.createElement('div');
@@ -40,6 +88,12 @@ function addMessage(text, isUser = false, code = null, title = 'AI Snippet') {
     }
 
     messageDiv.innerHTML = content;
+    
+    // Store title as dataset for restoration
+    if (code && !isUser) {
+        messageDiv.dataset.title = title;
+    }
+    
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -52,6 +106,9 @@ function addMessage(text, isUser = false, code = null, title = 'AI Snippet') {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
+    
+    // Save chat history after adding message
+    saveChatHistory();
 }
 
 // Function to handle sending a message
@@ -328,6 +385,18 @@ async function autoSaveLastSnippet() {
 
 // Add event listener for save button
 document.getElementById('saveBtn')?.addEventListener('click', autoSaveLastSnippet);
+
+// Initialize: load chat history when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    loadChatHistory();
+});
+
+// Also try to load immediately in case DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadChatHistory);
+} else {
+    loadChatHistory();
+}
 
 // Function to copy code to clipboard
 function copyCode(elementId, btn) {

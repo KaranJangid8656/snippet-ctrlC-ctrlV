@@ -77,3 +77,19 @@ exports.deleteSnippet = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({ message: 'Snippet deleted successfully' });
 });
+
+/**
+ * @desc    Update snippet
+ * @route   PATCH /snippets/:id
+ * @access  Public / Private
+ */
+exports.updateSnippet = asyncHandler(async (req, res, next) => {
+    const userId = req.user ? req.user._id : null;
+    const snippet = await snippetService.updateSnippet(req.params.id, req.body, userId);
+
+    if (!snippet) {
+        return next(new ErrorResponse(`Snippet not found with id of ${req.params.id}`, 404));
+    }
+
+    res.status(200).json(snippet);
+});

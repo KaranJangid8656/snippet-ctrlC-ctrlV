@@ -47,9 +47,9 @@ let currentModalSnippetId = null;
 const previewModal = document.getElementById('previewModal');
 const modalTitle = document.getElementById('modalTitle');
 const modalContent = document.getElementById('modalContent');
-const closeModalBtn = document.getElementById('closeModalBtn');
 const modalCopyBtn = document.getElementById('modalCopyBtn');
 const modalFavBtn = document.getElementById('modalFavBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
 const featuredPanel = document.getElementById('featuredPanel');
 const featuredContent = document.getElementById('featuredContent');
 
