@@ -2,7 +2,7 @@
    Snippet Saver — Frontend Script
    ===================================================== */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'http://localhost:5001';
 
 // ─── State ───────────────────────────────────────────
 let allSnippets = [];        // full list from server
@@ -28,6 +28,7 @@ const snippetsGrid = document.getElementById('snippetsGrid');
 const countLabel = document.getElementById('snippetsCountLabel');
 const totalCount = document.getElementById('totalCount');
 const favCount = document.getElementById('favCount');
+const languageChartEl = document.getElementById('languageChart');
 const filterBtns = document.querySelectorAll('.filter-btn');
 const sortSelect = document.getElementById('sortSelect');
 const filterBanner = document.getElementById('filterBanner');
@@ -346,13 +347,6 @@ function buildCard(s) {
       ${tagsHTML ? `<div class="card-tags">${tagsHTML}</div>` : ''}
       <div class="card-footer">
         <span class="card-date" style="display:flex;align-items:center;gap:4px"><i data-lucide="calendar" style="width:12px;height:12px;"></i> ${date}</span>
-        <span class="card-language" style="font-size:0.72rem; color:var(--text-secondary); display:flex; align-items:center; gap:4px">
-           <span class="language-dot" style="background:${getLangColor(s.language || 'javascript')}"></span>
-           ${escapeHtml(s.language || 'javascript')}
-        </span>
-        <span class="fav-indicator ${s.favorite ? 'shown' : ''}" style="display:flex;align-items:center;gap:4px">
-           <i data-lucide="star" style="width:12px;height:12px;fill:currentColor;"></i> Favorite
-        </span>
       </div>
     </article>`;
 }

@@ -22,9 +22,16 @@
   <!-- ─── Header ─── -->
   <header>
     <div class="header-inner">
-      <a href="#" class="logo" aria-label="Snippet Saver Home">
-        <span class="logo-text">SnippetSaver</span>
-      </a>
+      <div class="header-left">
+        <a href="#" class="logo" aria-label="Snippet Saver Home">
+          <span class="logo-text">SnippetSaver</span>
+        </a>
+        <nav class="header-nav">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="agent.html" class="nav-link">Agent</a>
+          <a href="#" class="nav-link">About</a>
+        </nav>
+      </div>
       <div class="header-actions">
         <!-- Auth Buttons -->
         <div id="authSection" class="auth-group">
@@ -151,19 +158,14 @@
       <div class="panel stats-panel">
         <p class="panel-title" style="display:flex;align-items:center;gap:6px;justify-content:flex-start;"><i
             data-lucide="pie-chart" style="width:16px;height:16px"></i> Analytics</p>
-        <div class="stat-group">
-          <span class="stat-label">Total Snippets</span>
-          <strong class="stat-value" id="totalCount">0</strong>
-        </div>
-        <div class="stat-group">
-          <span class="stat-label">Favorites</span>
-          <strong class="stat-value" id="favCount">0</strong>
-        </div>
-
-        <div class="stats-section">
-          <p class="stats-section-title">Languages Breakdown</p>
-          <div style="position: relative; height: 180px; width: 100%; margin-top: 10px;">
-            <canvas id="languageChart"></canvas>
+        <div style="display:flex; gap:20px;">
+          <div class="stat-group">
+            <span class="stat-label">Total Snippets</span>
+            <strong class="stat-value" id="totalCount">0</strong>
+          </div>
+          <div class="stat-group">
+            <span class="stat-label">Favorites</span>
+            <strong class="stat-value" id="favCount">0</strong>
           </div>
         </div>
       </div>

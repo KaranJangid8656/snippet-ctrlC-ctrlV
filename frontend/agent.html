@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Snippet Saver Agent — AI-powered code generation and search." />
+    <title>Snippet Agent — Code Generation</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .agent-container {
+            width: 100%;
+            height: calc(100vh - 65px);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        .chat-header {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+        }
+
+        .chat-header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .message {
+            width: 100%;
+            max-width: 800px;
+            padding: 1.25rem;
+            border-radius: 12px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: #e9ecef;
+            color: var(--text-primary);
+            align-self: center;
+            border: 1px solid transparent;
+        }
+
+        .message.bot {
+            background: transparent;
+            color: var(--text-primary);
+            align-self: center;
+            border: none;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .message-content pre {
+            margin-top: 1rem;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .chat-input-area {
+            padding: 1.5rem 2rem 3.5rem;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+        }
+
+        .chat-input-wrapper {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .chat-input-wrapper:focus-within {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-color: #d1d5db;
+            /* subtle subtle gray, not black */
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.5rem 0.8rem;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        input[type="text"].chat-input:focus,
+        input[type="text"].chat-input:active,
+        .chat-input:focus-visible {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        .send-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .send-btn:hover {
+            opacity: 0.9;
+        }
+
+        .save-btn {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .save-btn.saved {
+            background: var(--success);
+        }
+
+        .bot-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .code-block-wrapper {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .code-action-btn {
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-action-btn:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        .code-action-btn.success {
+            color: var(--success);
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.1);
+        }
+
+        .spinner-small {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .floating-save-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .floating-save-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-save-btn:active {
+            transform: scale(0.95);
+        }
+
+        .floating-save-btn.saved {
+            background: var(--success);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
+            z-index: 1001;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ─── Header ─── -->
+    <header>
+        <div class="header-inner">
+            <div class="header-left">
+                <a href="index.html" class="logo" aria-label="Snippet Saver Home">
+                    <span class="logo-text">SnippetSaver</span>
+                </a>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="agent.html" class="nav-link">Agent</a>
+                    <a href="#" class="nav-link">About</a>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <div id="authSection" class="auth-group">
+                    <button id="loginBtn" class="btn btn-outline" style="margin-right:8px">Login</button>
+                    <div id="userProfile" class="user-profile" style="display:none">
+                        <span id="userName" class="user-name"></span>
+                        <button id="logoutBtn" class="btn btn-ghost" title="Logout"><i data-lucide="log-out"
+                                style="width:16px;height:16px"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="agent-container">
+        <div class="chat-header">
+            <i data-lucide="bot" style="color:var(--accent)"></i>
+            <h1>Snippet Agent</h1>
+            <span class="bot-status"><i data-lucide="zap" style="width:12px;height:12px"></i> AI Ready</span>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+            <div class="message bot">
+                <div class="message-content">
+                    Hello! I'm your Snippet Agent. Ask me to generate any code snippet or search for solutions (e.g.,
+                    "Create a debounce function in JS").
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Type your request here..."
+                    autocomplete="off" />
+                <button id="sendBtn" class="send-btn" aria-label="Send message">
+                    <i data-lucide="arrow-up" style="width:20px;height:20px"></i>
+                </button>
+                <button id="saveBtn" class="send-btn save-btn" style="display:none;" title="Save snippet" aria-label="Save snippet">
+                    <i data-lucide="save" style="width:20px;height:20px"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="agent-script.js" defer></script>
+    <script>
+        // Initialize icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
